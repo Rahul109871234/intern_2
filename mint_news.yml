@@ -1,0 +1,31 @@
+name: Mint News
+
+on:
+  schedule:
+    - cron: "0 3 * * *"   # 03:00 UTC = 08:30 IST
+  workflow_dispatch:       # manual run from the Actions tab
+    inputs:
+      query:
+        description: "Name or topic to search in Mint news (leave empty for the daily digest)"
+        required: false
+        default: ""
+
+jobs:
+  mint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python mint_news.py
+        env:
+          QUERY: ${{ github.event.inputs.query }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MODEL: ${{ vars.GROQ_MODEL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
